@@ -36,7 +36,7 @@ async function init() {
   if (!/^.nl..k..$/.test(params.get('key'))) return
   console.log('filename', title)
 
-  const file = await fetch(`/zips/${title}`)
+  const file = await fetch(`/pamphlet/zips/${title}`)
   console.log('file', file)
   const data = await file.blob()
   const zipBytes = piz2zip(await data.bytes())
