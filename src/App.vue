@@ -19,6 +19,11 @@ function downloadFile() {
   URL.revokeObjectURL(url)
 }
 
+function piz2zip(pizBytes) {
+  const arr = Array.from(pizBytes)
+  arr.reverse()
+  return new Uint8Array(arr)
+}
 
 // http://localhost:5173/?title=twote.zip&key=unlocked
 async function init() {
@@ -26,16 +31,17 @@ async function init() {
   const params = new URLSearchParams(url.search)
   console.log('url', params)
 
-  const title = params.get('title')
-  const key = params.get('key')
-  if (!/^.nl..k..$/.test(key)) return
+  let title = params.get('title')
+  if (/\.zip$/.test(title)) title = title.replace(/.zip$/, '.piz')
+  if (!/^.nl..k..$/.test(params.get('key'))) return
+  console.log('filename', title)
 
   const file = await fetch(`/zips/${title}`)
   console.log('file', file)
   const data = await file.blob()
-  console.log('data', data)
+  const zipBytes = piz2zip(await data.bytes())
 
-  const unzip = await JSZip.loadAsync(await data.bytes())
+  const unzip = await JSZip.loadAsync(zipBytes)
   console.log('unzip', unzip)
 
   for (const title of Object.keys(unzip.files)) {
